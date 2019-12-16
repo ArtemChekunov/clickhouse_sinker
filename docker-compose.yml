@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: zookeeper:3.4.12
+    restart: always
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: confluentinc/cp-kafka:5.0.1-1
+    restart: always
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: "LISTENER_DOCKER_INTERNAL://127.0.0.1:9092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+  clickhouse:
+    image: yandex/clickhouse-server:19.16
+    restart: always
+    ports:
+      - "8123:8123"
+      - "9900:9000"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - "./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - clickhouse
+    environment:
+      CH_NAME: "dev"
+      CH_HOST: "http://127.0.0.1:8123"
+      CH_LOGIN: "default"
+      CH_PASSWORD: ""

@@ -7,7 +7,7 @@ import (
 	"github.com/kshvakov/clickhouse"
 )
 
-//这里对metric的value类型，只有三种情况， （float64，string，map[string]interface{})
+// There are only three cases for the value type of metric, (float64, string, map [string] interface {})
 func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} {
 	swType := switchType(cwt.Type)
 	name := strings.Replace(cwt.Name, ".", "\\.", -1)
@@ -24,6 +24,9 @@ func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} 
 		return clickhouse.Array(metric.GetArray(name, "int"))
 	case "floatArray":
 		return clickhouse.Array(metric.GetArray(name, "float"))
+	case "ElasticDate":
+		return metric.GetElasticDate(name)
+
 	//never happen
 	default:
 		return ""
@@ -47,6 +50,8 @@ func switchType(typ string) string {
 		return "float"
 	case "Array(Float32)", "Array(Float64)":
 		return "floatArray"
+	case "ElasticDate":
+		return "ElasticDate"
 	default:
 		panic("unsupport type " + typ)
 	}

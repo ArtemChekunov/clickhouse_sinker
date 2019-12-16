@@ -2,6 +2,8 @@ package parser
 
 import (
 	"github.com/tidwall/gjson"
+	"github.com/wswz/go_commons/log"
+	"time"
 
 	"github.com/housepower/clickhouse_sinker/model"
 )
@@ -62,4 +64,12 @@ func (c *GjsonMetric) GetFloat(key string) float64 {
 
 func (c *GjsonMetric) GetInt(key string) int64 {
 	return gjson.Get(c.raw, key).Int()
+}
+
+func (c *GjsonMetric) GetElasticDate(key string) int64 {
+	val := c.GetString(key)
+	t, _ := time.Parse(time.RFC3339, val)
+
+	log.Debug("KEY:", key, "VAL:", t.Unix())
+	return t.Unix()
 }

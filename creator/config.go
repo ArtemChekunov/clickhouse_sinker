@@ -64,7 +64,7 @@ func InitConfig(dir string) *Config {
 }
 
 func (cfg *Config) LoadTasks(dir string) error {
-	//检测配置是否正确
+	// Check if the configuration is correct
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return err

@@ -37,7 +37,6 @@ func main() {
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 	}
-
 	app.Run("clickhouse_sinker", func() error {
 		cfg = *creator.InitConfig(config)
 		runner = NewSinker(cfg)
@@ -73,14 +72,14 @@ func (s *Sinker) Init() error {
 }
 
 func (s *Sinker) Run() {
-	for i, _ := range s.tasks {
+	for i := range s.tasks {
 		go s.tasks[i].Run()
 	}
 	<-s.stopped
 }
 
 func (s *Sinker) Close() {
-	for i, _ := range s.tasks {
+	for i := range s.tasks {
 		s.tasks[i].Stop()
 	}
 	close(s.stopped)

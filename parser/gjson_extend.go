@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github.com/tidwall/gjson"
+	"time"
 
 	"github.com/housepower/clickhouse_sinker/model"
 )
@@ -61,11 +62,6 @@ func injectObject(prefix string, result map[string]interface{}, t gjson.Result) 
 	})
 }
 
-func copyMap(dst, src map[string]interface{}) {
-	for k, v := range src {
-		dst[k] = v
-	}
-}
 func (c *GjsonExtendMetric) Get(key string) interface{} {
 	return c.mp[key]
 }
@@ -126,7 +122,6 @@ func (c *GjsonExtendMetric) GetArray(key string, t string) interface{} {
 	default:
 		panic("not supported array type " + t)
 	}
-	return nil
 }
 
 func (c *GjsonExtendMetric) GetFloat(key string) float64 {
@@ -151,4 +146,11 @@ func (c *GjsonExtendMetric) GetInt(key string) int64 {
 		return int64(val.(float64))
 	}
 	return 0
+}
+
+func (c *GjsonExtendMetric) GetElasticDate(key string) int64 {
+	val := c.GetString(key)
+	t, _ := time.Parse(time.RFC3339, val)
+
+	return t.Unix()
 }

@@ -65,7 +65,6 @@ func (c *FastjsonMetric) GetArray(key string, t string) interface{} {
 	default:
 		panic("not supported array type " + t)
 	}
-	return nil
 }
 
 func (c *FastjsonMetric) String() string {

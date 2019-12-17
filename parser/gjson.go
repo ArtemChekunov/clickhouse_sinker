@@ -54,7 +54,6 @@ func (c *GjsonMetric) GetArray(key string, t string) interface{} {
 	default:
 		panic("not supported array type " + t)
 	}
-	return nil
 }
 
 func (c *GjsonMetric) GetFloat(key string) float64 {

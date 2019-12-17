@@ -62,11 +62,6 @@ func injectObject(prefix string, result map[string]interface{}, t gjson.Result) 
 	})
 }
 
-func copyMap(dst, src map[string]interface{}) {
-	for k, v := range src {
-		dst[k] = v
-	}
-}
 func (c *GjsonExtendMetric) Get(key string) interface{} {
 	return c.mp[key]
 }
@@ -127,7 +122,6 @@ func (c *GjsonExtendMetric) GetArray(key string, t string) interface{} {
 	default:
 		panic("not supported array type " + t)
 	}
-	return nil
 }
 
 func (c *GjsonExtendMetric) GetFloat(key string) float64 {

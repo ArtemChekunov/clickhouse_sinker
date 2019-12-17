@@ -38,6 +38,6 @@ before_script:
 # failing test, we want to see both. Configure golangci-lint with a
 # .golangci.yml file at the top level of your repo.
 script:
-  #- golangci-lint run       # the code is not ready yet for the linter
+  - golangci-lint run || true
   - go test -mod vendor -v ./...
   - go test -mod vendor -bench=. ./...

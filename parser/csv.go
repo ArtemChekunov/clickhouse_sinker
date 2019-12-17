@@ -3,6 +3,7 @@ package parser
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/housepower/clickhouse_sinker/model"
 )
@@ -54,4 +55,11 @@ func (c *CsvMetric) GetInt(key string) int64 {
 // GetArray is Empty implemented for CsvMetric
 func (c *CsvMetric) GetArray(key string, t string) interface{} {
 	return []interface{}{}
+}
+
+func (c *CsvMetric) GetElasticDate(key string) int64 {
+	val := c.GetString(key)
+	t, _ := time.Parse(time.RFC3339, val)
+
+	return t.Unix()
 }

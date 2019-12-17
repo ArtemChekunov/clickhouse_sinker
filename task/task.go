@@ -75,7 +75,6 @@ FOR:
 	}
 	service.flush(msgs)
 	service.stopped <- struct{}{}
-	return
 }
 
 func (service *TaskService) parse(data []byte) model.Metric {

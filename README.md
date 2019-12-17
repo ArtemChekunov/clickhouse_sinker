@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/ArtemChekunov/clickhouse_sinker.svg?branch=master)](https://travis-ci.com/ArtemChekunov/clickhouse_sinker)
+[![Download](https://img.shields.io/badge/download-latest-brightgreen.svg)](https://hub.docker.com/repository/docker/artemchekunov/clickhouse_sinker)
+
 # clickhouse_sinker
 
 clickhouse_sinker is a sinker program that consumes kafka message and import them to [ClickHouse](https://clickhouse.yandex/).

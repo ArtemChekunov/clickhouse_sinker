@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"log"
+	"net/http"
 	"os"
 	"runtime/pprof"
 
@@ -10,21 +10,29 @@ import (
 	"github.com/housepower/clickhouse_sinker/task"
 	_ "github.com/kshvakov/clickhouse"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/wswz/go_commons/app"
+	"github.com/wswz/go_commons/log"
 )
 
 var (
-	config     string
+	config     = flag.String("conf", "", "config dir")
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	http_addr  = flag.String("http-addr", "0.0.0.0:2112", "http interface")
 )
 
 func init() {
-	flag.StringVar(&config, "conf", "", "config dir")
 
 	flag.Parse()
 }
 
 func main() {
+
+	go func() {
+		log.Info("Run http server", *http_addr)
+		http.Handle("/metrics", promhttp.Handler())
+		log.Error(http.ListenAndServe(*http_addr, nil))
+	}()
 
 	var cfg creator.Config
 	var runner *Sinker
@@ -32,13 +40,13 @@ func main() {
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 	}
 	app.Run("clickhouse_sinker", func() error {
-		cfg = *creator.InitConfig(config)
+		cfg = *creator.InitConfig(*config)
 		runner = NewSinker(cfg)
 		return runner.Init()
 	}, func() error {

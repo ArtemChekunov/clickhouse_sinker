@@ -2,15 +2,17 @@ package main
 
 import (
 	"flag"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"runtime/pprof"
 
 	"github.com/housepower/clickhouse_sinker/creator"
+	"github.com/housepower/clickhouse_sinker/prom"
 	"github.com/housepower/clickhouse_sinker/task"
 	_ "github.com/kshvakov/clickhouse"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/wswz/go_commons/app"
 	"github.com/wswz/go_commons/log"
 )
@@ -22,17 +24,18 @@ var (
 )
 
 func init() {
-
 	flag.Parse()
+
+	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
+	prometheus.MustRegister(prom.ChReconnectTotal)
+	prometheus.MustRegister(prom.ChEventsSuccess)
+	prometheus.MustRegister(prom.ChEventsErrors)
+	prometheus.MustRegister(prom.ChEventsTotal)
+
 }
 
 func main() {
 
-	go func() {
-		log.Info("Run http server", *http_addr)
-		http.Handle("/metrics", promhttp.Handler())
-		log.Error(http.ListenAndServe(*http_addr, nil))
-	}()
 
 	var cfg creator.Config
 	var runner *Sinker
@@ -50,6 +53,12 @@ func main() {
 		runner = NewSinker(cfg)
 		return runner.Init()
 	}, func() error {
+		go func() {
+			log.Info("Run http server", *http_addr)
+			http.Handle("/metrics", promhttp.Handler())
+			log.Error(http.ListenAndServe(*http_addr, nil))
+		}()
+
 		runner.Run()
 		return nil
 	}, func() error {

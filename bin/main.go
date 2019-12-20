@@ -27,10 +27,11 @@ func init() {
 	flag.Parse()
 
 	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
-	prometheus.MustRegister(prom.ChReconnectTotal)
-	prometheus.MustRegister(prom.ChEventsSuccess)
-	prometheus.MustRegister(prom.ChEventsErrors)
-	prometheus.MustRegister(prom.ChEventsTotal)
+	prometheus.MustRegister(prom.ClickhouseReconnectTotal)
+	prometheus.MustRegister(prom.ClickhouseEventsSuccess)
+	prometheus.MustRegister(prom.ClickhouseEventsErrors)
+	prometheus.MustRegister(prom.ClickhouseEventsTotal)
+	prometheus.MustRegister(prom.KafkaConsumerErrors)
 
 }
 

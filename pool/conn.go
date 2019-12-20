@@ -21,7 +21,7 @@ type Connection struct {
 }
 
 func (c *Connection) ReConnect() error {
-	prom.ChReconnectTotal.Inc()
+	prom.ClickhouseReconnectTotal.Inc()
 	sqlDB, err := sql.Open("clickhouse", c.Dsn)
 	if err != nil {
 		log.Info("reconnect to ", c.Dsn, err.Error())

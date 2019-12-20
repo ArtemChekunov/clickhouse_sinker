@@ -7,6 +7,8 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/wswz/go_commons/log"
+	"github.com/housepower/clickhouse_sinker/prom"
+
 )
 
 type Kafka struct {
@@ -84,6 +86,7 @@ func (k *Kafka) Start() error {
 		defer k.wg.Done()
 		for {
 			if err := k.client.Consume(k.context, strings.Split(k.Topic, ","), k.consumer); err != nil {
+				prom.KafkaConsumerErrors.WithLabelValues(k.Topic, k.ConsumerGroup).Inc()
 				log.Error("Error from consumer: %v", err)
 			}
 			// check if context was cancelled, signaling that the consumer should stop

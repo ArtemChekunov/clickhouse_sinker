@@ -80,17 +80,17 @@ func (c *ClickHouse) Write(metrics []model.Metric) (err error) {
 
 	defer stmt.Close()
 	for _, metric := range metrics {
-		prom.ChEventsTotal.WithLabelValues(c.Db, c.TableName).Inc()
+		prom.ClickhouseEventsTotal.WithLabelValues(c.Db, c.TableName).Inc()
 		var args = make([]interface{}, len(c.dmMap))
 		for i, name := range c.dms {
 			args[i] = util.GetValueByType(metric, c.dmMap[name])
 		}
 		if _, err := stmt.Exec(args...); err != nil {
-			prom.ChEventsErrors.WithLabelValues(c.Db, c.TableName).Inc()
+			prom.ClickhouseEventsErrors.WithLabelValues(c.Db, c.TableName).Inc()
 			log.Error("execSQL:", err.Error())
 			return err
 		}
-		prom.ChEventsSuccess.WithLabelValues(c.Db, c.TableName).Inc()
+		prom.ClickhouseEventsSuccess.WithLabelValues(c.Db, c.TableName).Inc()
 	}
 	if err = tx.Commit(); err != nil {
 		if shouldReconnect(err) {

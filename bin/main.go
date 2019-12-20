@@ -45,6 +45,7 @@ func main() {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
 			log.Error(err)
+			os.Exit(1)
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()

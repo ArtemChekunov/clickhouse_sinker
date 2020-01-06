@@ -63,6 +63,7 @@ func main() {
 			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte(`<html><head><title>ClickHouse Sinker</title></head>
 				<body>
+					<h1>ClickHouse Sinker</h1>
 					<p><a href="/metrics">Metrics</a></p>
 					<p><a href="/ready">Ready</a></p>
 					<p><a href="/ready?full=1">Ready Full</a></p>

@@ -2,12 +2,14 @@ package pool
 
 import (
 	"database/sql"
+	"fmt"
+	"github.com/heptiolabs/healthcheck"
+	"github.com/housepower/clickhouse_sinker/health"
 	"github.com/housepower/clickhouse_sinker/prom"
+	"github.com/wswz/go_commons/log"
 	"math/rand"
 	"sync"
 	"time"
-
-	"github.com/wswz/go_commons/log"
 )
 
 var (
@@ -56,8 +58,16 @@ func SetDsn(name string, dsn string, maxLifetTime time.Duration) {
 		ps = append(ps, &Connection{sqlDB, dsn})
 		poolMaps[name] = ps
 	} else {
-		poolMaps[name] = []*Connection{&Connection{sqlDB, dsn}}
+		poolMaps[name] = []*Connection{{sqlDB, dsn}}
 	}
+
+	var ix int
+	var i *Connection
+	for ix, i = range poolMaps[name] {
+		var checkName = fmt.Sprintf("clickhouse(%s, %d)", name, ix)
+		health.Health.AddReadinessCheck(checkName, healthcheck.DatabasePingCheck(i.DB, 1*time.Second))
+	}
+
 }
 
 func GetConn(name string) *Connection {

@@ -106,7 +106,7 @@ func (k *Kafka) Start() error {
 		k.wg.Add(1)
 		defer k.wg.Done()
 
-		consumerName := fmt.Sprintf("consumer(%s, %s)", k.ConsumerGroup, k.Topic)
+		consumerName := fmt.Sprintf("kafka_consumer(%s, %s)", k.ConsumerGroup, k.Topic)
 		kafkaConsumerErrors.Store(consumerName, ConsumerError{UnixTime: 0, Error: nil})
 		health.Health.AddReadinessCheck(consumerName, ConsumerHealthCheck(consumerName))
 

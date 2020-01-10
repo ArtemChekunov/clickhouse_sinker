@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/housepower/clickhouse_sinker/health"
+	"github.com/housepower/clickhouse_sinker/prom"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"runtime/pprof"
 
 	"github.com/housepower/clickhouse_sinker/creator"
-	"github.com/housepower/clickhouse_sinker/prom"
 	"github.com/housepower/clickhouse_sinker/task"
 	_ "github.com/kshvakov/clickhouse"
 
@@ -22,12 +22,12 @@ import (
 var (
 	config     = flag.String("conf", "", "config dir")
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-	http_addr  = flag.String("http-addr", "0.0.0.0:2112", "http interface")
+	httpAddr   = flag.String("http-addr", "0.0.0.0:2112", "http interface")
 
 	httpMetrcs = promhttp.Handler()
 )
 
-func init() {
+func main() {
 	flag.Parse()
 
 	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
@@ -36,10 +36,6 @@ func init() {
 	prometheus.MustRegister(prom.ClickhouseEventsErrors)
 	prometheus.MustRegister(prom.ClickhouseEventsTotal)
 	prometheus.MustRegister(prom.KafkaConsumerErrors)
-
-}
-
-func main() {
 
 	var cfg creator.Config
 	var runner *Sinker
@@ -50,7 +46,10 @@ func main() {
 			log.Error(err)
 			os.Exit(1)
 		}
-		pprof.StartCPUProfile(f)
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			panic(err)
+		}
 		defer pprof.StopCPUProfile()
 	}
 	app.Run("clickhouse_sinker", func() error {
@@ -61,7 +60,8 @@ func main() {
 		go func() {
 			mux := http.NewServeMux()
 			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(`<html><head><title>ClickHouse Sinker</title></head>
+				_, _ = w.Write([]byte(`
+				<html><head><title>ClickHouse Sinker</title></head>
 				<body>
 					<h1>ClickHouse Sinker</h1>
 					<p><a href="/metrics">Metrics</a></p>
@@ -76,8 +76,8 @@ func main() {
 			mux.HandleFunc("/ready", health.Health.ReadyEndpoint) // GET /ready?full=1
 			mux.HandleFunc("/live", health.Health.LiveEndpoint)   // GET /live?full=1
 
-			log.Info("Run http server", *http_addr)
-			log.Error(http.ListenAndServe(*http_addr, mux))
+			log.Info("Run http server", *httpAddr)
+			log.Error(http.ListenAndServe(*httpAddr, mux))
 		}()
 
 		runner.Run()
@@ -89,7 +89,7 @@ func main() {
 }
 
 type Sinker struct {
-	tasks   []*task.TaskService
+	tasks   []*task.Service
 	config  creator.Config
 	stopped chan struct{}
 }

@@ -36,18 +36,18 @@ func (c *CsvMetric) Get(key string) interface{} {
 }
 
 func (c *CsvMetric) GetString(key string) string {
-	v, _ := c.mp[key]
+	v := c.mp[key]
 	return v
 }
 
 func (c *CsvMetric) GetFloat(key string) float64 {
-	v, _ := c.mp[key]
+	v := c.mp[key]
 	n, _ := strconv.ParseFloat(v, 64)
 	return n
 }
 
 func (c *CsvMetric) GetInt(key string) int64 {
-	v, _ := c.mp[key]
+	v := c.mp[key]
 	n, _ := strconv.ParseInt(v, 10, 64)
 	return n
 }

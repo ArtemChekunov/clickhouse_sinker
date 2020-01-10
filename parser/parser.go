@@ -24,7 +24,7 @@ func NewParser(typ string, title []string, delimiter string) Parser {
 	}
 }
 
-func GetJsonShortStr(v interface{}) string {
+func GetJSONShortStr(v interface{}) string {
 	bs, _ := json.Marshal(v)
 	return string(bs)
 }

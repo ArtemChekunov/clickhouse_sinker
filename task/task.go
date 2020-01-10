@@ -15,7 +15,7 @@ import (
 	"github.com/wswz/go_commons/log"
 )
 
-type TaskService struct {
+type Service struct {
 	stopped    chan struct{}
 	kafka      *input.Kafka
 	clickhouse *output.ClickHouse
@@ -26,8 +26,8 @@ type TaskService struct {
 	MinBufferSize int
 }
 
-func NewTaskService(kafka *input.Kafka, clickhouse *output.ClickHouse, p parser.Parser) *TaskService {
-	return &TaskService{
+func NewTaskService(kafka *input.Kafka, clickhouse *output.ClickHouse, p parser.Parser) *Service {
+	return &Service{
 		stopped:    make(chan struct{}),
 		kafka:      kafka,
 		clickhouse: clickhouse,
@@ -35,7 +35,7 @@ func NewTaskService(kafka *input.Kafka, clickhouse *output.ClickHouse, p parser.
 	}
 }
 
-func (service *TaskService) Init() error {
+func (service *Service) Init() error {
 	err := service.kafka.Init()
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (service *TaskService) Init() error {
 	return service.clickhouse.Init()
 }
 
-func (service *TaskService) Run() {
+func (service *Service) Run() {
 	if err := service.kafka.Start(); err != nil {
 		panic(err)
 	}
@@ -77,21 +77,21 @@ FOR:
 	service.stopped <- struct{}{}
 }
 
-func (service *TaskService) parse(data []byte) model.Metric {
+func (service *Service) parse(data []byte) model.Metric {
 	return service.p.Parse(data)
 }
-func (service *TaskService) flush(metrics []model.Metric) {
+func (service *Service) flush(metrics []model.Metric) {
 	log.Info("buf size:", len(metrics))
 	service.clickhouse.LoopWrite(metrics)
 }
 
-func (service *TaskService) Stop() {
+func (service *Service) Stop() {
 	log.Info("close TaskService size:")
 	if err := service.kafka.Stop(); err != nil {
 		panic(err)
 	}
 	<-service.stopped
-	service.clickhouse.Close()
+	_ = service.clickhouse.Close()
 	log.Info("closed TaskService size:")
 }
 

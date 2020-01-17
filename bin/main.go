@@ -17,8 +17,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"net"
 	"net/http"
+	"strconv"
 
+	"github.com/google/uuid"
+	"github.com/hashicorp/consul/api"
 	"github.com/housepower/clickhouse_sinker/creator"
 	"github.com/housepower/clickhouse_sinker/health"
 	"github.com/housepower/clickhouse_sinker/prom"
@@ -36,10 +41,55 @@ var (
 	httpAddr = flag.String("http-addr", "0.0.0.0:2112", "http interface")
 
 	httpMetrcs = promhttp.Handler()
+	cfg        creator.Config
+	runner     *Sinker
+	ip, port   = parseAddr(*httpAddr)
+	appID, _   = uuid.NewUUID()
+	appIDStr   = fmt.Sprintf("clickhouse_sinker-%s", appID.String())
 )
+
+func parseAddr(addr string) (string, int) {
+	ip, portStr, err := net.SplitHostPort(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		panic(err)
+	}
+
+	if ip == "0.0.0.0" {
+		ip = ""
+	}
+
+	return ip, port
+}
+
+func serviceRegister(agent *api.Agent) {
+	err := agent.ServiceRegister(&api.AgentServiceRegistration{
+		Name:    "clickhouse_sinker",
+		ID:      appIDStr,
+		Port:    port,
+		Address: ip,
+		Check: &api.AgentServiceCheck{
+			CheckID:  appIDStr + "-http-heath",
+			Name:     "/ready",
+			Interval: "15s",
+			Timeout:  "15s",
+			HTTP:     fmt.Sprintf("http://%s/ready?full=1", *httpAddr),
+		},
+	})
+	if err != nil {
+		log.Warn(err)
+	}
+}
 
 func main() {
 	flag.Parse()
+	//client, _ := api.NewClient(&api.Config{Address:"http://127.0.0.1:8500"})
+	client, _ := api.NewClient(api.DefaultConfig())
+	agent := client.Agent()
 
 	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
 	prometheus.MustRegister(prom.ClickhouseReconnectTotal)
@@ -48,8 +98,13 @@ func main() {
 	prometheus.MustRegister(prom.ClickhouseEventsTotal)
 	prometheus.MustRegister(prom.KafkaConsumerErrors)
 
-	var cfg creator.Config
-	var runner *Sinker
+	serviceRegister(agent)
+	defer func() {
+		err := agent.ServiceDeregister(appIDStr)
+		if err != nil {
+			log.Warn(err)
+		}
+	}()
 
 	app.Run("clickhouse_sinker", func() error {
 		cfg = *creator.InitConfig(*config)

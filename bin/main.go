@@ -37,8 +37,9 @@ import (
 )
 
 var (
-	config   = flag.String("conf", "", "config dir")
-	httpAddr = flag.String("http-addr", "0.0.0.0:2112", "http interface")
+	config     = flag.String("conf", "", "config dir")
+	httpAddr   = flag.String("http-addr", "0.0.0.0:2112", "http interface")
+	consulAddr = flag.String("consul-addr", "http://127.0.0.1:8500", "consul api interface address")
 
 	httpMetrcs = promhttp.Handler()
 	cfg        creator.Config
@@ -67,6 +68,7 @@ func parseAddr(addr string) (string, int) {
 }
 
 func serviceRegister(agent *api.Agent) {
+	log.Debug("Consul: register service")
 	err := agent.ServiceRegister(&api.AgentServiceRegistration{
 		Name:    "clickhouse_sinker",
 		ID:      appIDStr,
@@ -81,15 +83,16 @@ func serviceRegister(agent *api.Agent) {
 		},
 	})
 	if err != nil {
-		log.Warn(err)
+		log.Warnf("Consul: %s", err)
 	}
 }
 
 func main() {
 	flag.Parse()
-	//client, _ := api.NewClient(&api.Config{Address:"http://127.0.0.1:8500"})
-	client, _ := api.NewClient(api.DefaultConfig())
-	agent := client.Agent()
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = *consulAddr
+	consulClient, _ := api.NewClient(consulConfig)
+	consulAgent := consulClient.Agent()
 
 	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
 	prometheus.MustRegister(prom.ClickhouseReconnectTotal)
@@ -98,11 +101,12 @@ func main() {
 	prometheus.MustRegister(prom.ClickhouseEventsTotal)
 	prometheus.MustRegister(prom.KafkaConsumerErrors)
 
-	serviceRegister(agent)
+	serviceRegister(consulAgent)
 	defer func() {
-		err := agent.ServiceDeregister(appIDStr)
+		log.Debug("Consul: de-register service")
+		err := consulAgent.ServiceDeregister(appIDStr)
 		if err != nil {
-			log.Warn(err)
+			log.Warnf("Consul: %s", err)
 		}
 	}()
 

@@ -37,11 +37,14 @@ import (
 )
 
 var (
-	config                               = flag.String("conf", "", "config dir")
-	httpAddr                             = flag.String("http-addr", "0.0.0.0:2112", "http interface")
-	consulAddr                           = flag.String("consul-addr", "http://127.0.0.1:8500", "consul api interface address")
-	consulRegister                       = flag.Bool("consul-register-enable", false, "register current instance in consul")
-	consulDeregisterCriticalServiceAfter = flag.String("consul-deregister-critical-services-after", "30m", "configure service check DeregisterCriticalServiceAfter")
+	config     = flag.String("conf", "", "config dir")
+	httpAddr   = flag.String("http-addr", "0.0.0.0:2112", "http interface")
+	consulAddr = flag.String("consul-addr", "http://127.0.0.1:8500",
+		"consul api interface address")
+	consulRegister = flag.Bool("consul-register-enable", false,
+		"register current instance in consul")
+	consulDeregisterCriticalServiceAfter = flag.String("consul-deregister-critical-services-after", "30m",
+		"configure service check DeregisterCriticalServiceAfter")
 
 	httpMetrics = promhttp.Handler()
 	cfg         creator.Config
@@ -108,10 +111,9 @@ func main() {
 	prometheus.MustRegister(prom.ClickhouseEventsTotal)
 	prometheus.MustRegister(prom.KafkaConsumerErrors)
 
-	if *consulRegister == true {
+	if *consulRegister {
 		serviceRegister(consulAgent)
 		defer func() {
-
 			log.Debug("Consul: de-register service")
 			err := consulAgent.ServiceDeregister(appIDStr)
 			if err != nil {

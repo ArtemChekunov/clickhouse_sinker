@@ -68,7 +68,7 @@ func switchType(typ string) string {
 		return "float"
 	case "Array(Float32)", "Array(Float64)":
 		return "floatArray"
-	case "ElasticDateTime":
+	case "ElasticDateTime", "Nullable(ElasticDateTime)":
 		return "ElasticDateTime"
 	default:
 		panic("unsupport type " + typ)

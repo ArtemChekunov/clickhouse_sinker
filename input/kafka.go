@@ -410,7 +410,7 @@ func (ring *Ring) genBatch(expNewGroundOff int64) (gaps []OffsetRange) {
 	if ring.ringFilledOffset < ring.ringGroundOff {
 		ring.ringFilledOffset = ring.ringGroundOff
 	}
-	return
+	return gaps
 }
 
 func MetricToRow(metric model.Metric, msg kafka.Message, dims []*model.ColumnWithType) (row []interface{}) {

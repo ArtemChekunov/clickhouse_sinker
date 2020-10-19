@@ -15,14 +15,19 @@ limitations under the License.
 
 package model
 
+import "time"
+
 // Metric interface for metric collection
 type Metric interface {
 	Get(key string) interface{}
-	GetString(key string) string
+	GetString(key string, nullable bool) interface{}
 	GetArray(key string, t string) interface{}
-	GetFloat(key string) float64
-	GetInt(key string) int64
-	GetElasticDateTime(key string) int64
+	GetFloat(key string, nullable bool) interface{}
+	GetInt(key string, nullable bool) interface{}
+	GetDate(key string) time.Time
+	GetDateTime(key string) time.Time
+	GetDateTime64(key string) time.Time
+	GetElasticDateTime(key string, nullable bool) interface{}
 }
 
 // DimMetrics
@@ -33,6 +38,7 @@ type DimMetrics struct {
 
 // ColumnWithType
 type ColumnWithType struct {
-	Name string
-	Type string
+	Name       string
+	Type       string
+	SourceName string
 }

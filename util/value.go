@@ -12,34 +12,40 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package util
+package model
 
 import (
+	"github.com/kshvakov/clickhouse"
 	"strings"
 
-	"github.com/housepower/clickhouse_sinker/model"
-	"github.com/kshvakov/clickhouse"
+	"github.com/ClickHouse/clickhouse-go"
 )
 
 // There are only three cases for the value type of metric, (float64, string, map [string] interface {})
-func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} {
-	swType := switchType(cwt.Type)
-	name := strings.Replace(cwt.Name, ".", "\\.", -1)
+func GetValueByType(metric Metric, cwt *ColumnWithType) interface{} {
+	swType, nullable := switchType(cwt.Type)
+	name := cwt.SourceName
 	switch swType {
 	case "int":
-		return metric.GetInt(name)
+		return metric.GetInt(name, nullable)
 	case "float":
-		return metric.GetFloat(name)
+		return metric.GetFloat(name, nullable)
 	case "string":
-		return metric.GetString(name)
+		return metric.GetString(name, nullable)
 	case "stringArray":
 		return clickhouse.Array(metric.GetArray(name, "string"))
 	case "intArray":
 		return clickhouse.Array(metric.GetArray(name, "int"))
 	case "floatArray":
 		return clickhouse.Array(metric.GetArray(name, "float"))
+	case "Date":
+		return metric.GetDate(name)
+	case "DateTime":
+		return metric.GetDateTime(name)
+	case "DateTime64":
+		return metric.GetDateTime64(name)
 	case "ElasticDateTime":
-		return metric.GetElasticDateTime(name)
+		return metric.GetElasticDateTime(name, nullable)
 
 	//never happen
 	default:
@@ -47,27 +53,35 @@ func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} 
 	}
 }
 
-func switchType(typ string) string {
+func switchType(typ string) (dataType string, nullable bool) {
+	nullable = strings.HasPrefix(typ, "Nullable")
+
 	switch typ {
-	case "Date", "DateTime", "UInt8", "UInt16", "UInt32", "UInt64", "Int8",
-		"Int16", "Int32", "Int64", "Nullable(Date)", "Nullable(DateTime)",
+	case "UInt8", "UInt16", "UInt32", "UInt64", "Int8",
+		"Int16", "Int32", "Int64",
 		"Nullable(UInt8)", "Nullable(UInt16)", "Nullable(UInt32)", "Nullable(UInt64)",
 		"Nullable(Int8)", "Nullable(Int16)", "Nullable(Int32)", "Nullable(Int64)":
-		return "int"
-	case "Array(Date)", "Array(DateTime)", "Array(UInt8)", "Array(UInt16)", "Array(UInt32)",
+		return "int", nullable
+	case "Array(UInt8)", "Array(UInt16)", "Array(UInt32)",
 		"Array(UInt64)", "Array(Int8)", "Array(Int16)", "Array(Int32)", "Array(Int64)":
-		return "intArray"
-	case "String", "FixString", "Nullable(String)":
-		return "string"
-	case "Array(String)", "Array(FixString)":
-		return "stringArray"
+		return "intArray", false
+	case "String", "FixedString", "Nullable(String)":
+		return "string", nullable
+	case "Array(String)", "Array(FixedString)":
+		return "stringArray", false
 	case "Float32", "Float64", "Nullable(Float32)", "Nullable(Float64)":
-		return "float"
+		return "float", nullable
 	case "Array(Float32)", "Array(Float64)":
-		return "floatArray"
-	case "ElasticDateTime":
-		return "ElasticDateTime"
+		return "floatArray", false
+	case "Date", "Nullable(Date)":
+		return "Date", nullable
+	case "DateTime", "Nullable(DateTime)":
+		return "DateTime", nullable
+	case "DateTime64", "Nullable(DateTime64)":
+		return "DateTime64", nullable
+	case "ElasticDateTime", "Nullable(ElasticDateTime)":
+		return "ElasticDateTime", nullable
 	default:
-		panic("unsupport type " + typ)
 	}
+	panic("unsupported type " + typ)
 }

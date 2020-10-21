@@ -58,14 +58,14 @@ func (c *FastjsonMetric) GetString(key string, nullable bool) interface{} {
 }
 
 func (c *FastjsonMetric) GetFloat(key string, nullable bool) interface{} {
-	if !c.value.Exists(key) && nullable {
+	if nullable && !c.value.Exists(key) {
 		return nil
 	}
 	return c.value.GetFloat64(key)
 }
 
 func (c *FastjsonMetric) GetInt(key string, nullable bool) interface{} {
-	if !c.value.Exists(key) && nullable {
+	if nullable && !c.value.Exists(key) {
 		return nil
 	}
 	return int64(c.value.GetInt(key))

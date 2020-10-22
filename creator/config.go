@@ -168,9 +168,12 @@ type Task struct {
 		Type string
 	} `json:"metrics"`
 
-	FlushInterval int `json:"flushInterval,omitempty"`
-	BufferSize    int `json:"bufferSize,omitempty"`
-	MinBufferSize int `json:"minBufferSize,omitempty"`
+	FlushInterval    int    `json:"flushInterval,omitempty"`
+	BufferSize       int    `json:"bufferSize,omitempty"`
+	MinBufferSize    int    `json:"minBufferSize,omitempty"`
+	LayoutDate       string `json:"layoutDate,omitempty"`
+	LayoutDateTime   string `json:"layoutDateTime,omitempty"`
+	LayoutDateTime64 string `json:"layoutDateTime64,omitempty"`
 }
 
 var (

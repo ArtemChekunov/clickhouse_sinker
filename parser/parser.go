@@ -16,8 +16,14 @@ package parser
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/housepower/clickhouse_sinker/model"
+)
+
+var (
+	DefaultTSLayout = []string{"2006-01-02", time.RFC3339Nano, time.RFC3339Nano}
+	Epoch           = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 )
 
 // Parse is the Parser interface
@@ -26,18 +32,18 @@ type Parser interface {
 }
 
 // NewParser is a factory method to generate new parse
-func NewParser(typ string, title []string, delimiter string) Parser {
+func NewParser(typ string, title []string, delimiter string, tsLayout []string) Parser {
 	switch typ {
 	case "json", "gjson":
-		return &GjsonParser{}
+		return &GjsonParser{tsLayout: tsLayout}
 	case "fastjson":
-		return &FastjsonParser{}
+		return &FastjsonParser{tsLayout: tsLayout}
 	case "csv":
-		return &CsvParser{title: title, delimiter: delimiter}
+		return &CsvParser{title: title, delimiter: delimiter, tsLayout: tsLayout}
 	case "gjson_extend": //extend gjson that could extract the map
-		return &GjsonExtendParser{}
+		return &GjsonExtendParser{tsLayout: tsLayout}
 	default:
-		return &GjsonParser{}
+		return &GjsonParser{tsLayout: tsLayout}
 	}
 }
 

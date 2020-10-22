@@ -29,7 +29,8 @@ func (config *Config) GenTasks() []*task.Service {
 	for _, taskConfig := range config.Tasks {
 		kafka := config.GenInput(taskConfig)
 		ck := config.GenOutput(taskConfig)
-		p := parser.NewParser(taskConfig.Parser, taskConfig.CsvFormat, taskConfig.Delimiter)
+		//p := parser.NewParser(taskConfig.Parser, taskConfig.CsvFormat, taskConfig.Delimiter)
+		p := parser.NewParser(taskConfig.Parser, taskConfig.CsvFormat, taskConfig.Delimiter, []string{taskConfig.LayoutDate, taskConfig.LayoutDateTime, taskConfig.LayoutDateTime64})
 
 		taskImpl := task.NewTaskService(kafka, ck, p)
 

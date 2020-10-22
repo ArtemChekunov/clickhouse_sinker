@@ -2,12 +2,13 @@ package parser
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGjsonExtendInt(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected int64 = 1536813227
@@ -15,7 +16,7 @@ func TestGjsonExtendInt(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 func TestGjsonExtendIntNullableFalse(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected int64 = int64(0)
@@ -24,7 +25,7 @@ func TestGjsonExtendIntNullableFalse(t *testing.T) {
 }
 
 func TestGjsonExtendIntNullableTrue(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	result := metric.GetInt("its_not_exist", true)
@@ -32,7 +33,7 @@ func TestGjsonExtendIntNullableTrue(t *testing.T) {
 }
 
 func TestGjsonExtendArrayInt(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	arr := metric.GetArray("mp_a", "int").([]int64)
@@ -43,7 +44,7 @@ func TestGjsonExtendArrayInt(t *testing.T) {
 }
 
 func TestGjsonExtendStr(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected string = "ws"
@@ -51,7 +52,7 @@ func TestGjsonExtendStr(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 func TestGjsonExtendStrNullableFalse(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected string = ""
@@ -59,7 +60,7 @@ func TestGjsonExtendStrNullableFalse(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 func TestGjsonExtendStrNullableTrue(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	result := metric.GetString("channel_not_exist", true)
@@ -67,7 +68,7 @@ func TestGjsonExtendStrNullableTrue(t *testing.T) {
 }
 
 func TestGjsonExtendArrayString(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	arr := metric.GetArray("mps_a", "string").([]string)
@@ -78,7 +79,7 @@ func TestGjsonExtendArrayString(t *testing.T) {
 }
 
 func TestGjsonExtendFloat(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected float64 = 0.11
@@ -87,7 +88,7 @@ func TestGjsonExtendFloat(t *testing.T) {
 }
 
 func TestGjsonExtendFloatNullableFalse(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected int = 0
@@ -95,7 +96,7 @@ func TestGjsonExtendFloatNullableFalse(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 func TestGjsonExtendFloatNullableTrue(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	result := metric.GetFloat("percent_not_exist", true)
@@ -103,7 +104,7 @@ func TestGjsonExtendFloatNullableTrue(t *testing.T) {
 }
 
 func TestGjsonExtendArrayFloat(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	arr := metric.GetArray("mp_f", "float").([]float64)
@@ -114,7 +115,7 @@ func TestGjsonExtendArrayFloat(t *testing.T) {
 }
 
 func TestGjsonExtendElasticDateTime(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	// {"date": "2019-12-16T12:10:30Z"}
@@ -125,7 +126,7 @@ func TestGjsonExtendElasticDateTime(t *testing.T) {
 }
 
 func TestGjsonExtendElasticDateTimeNullableFalse(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	var expected int64 = -62135596800
@@ -134,7 +135,7 @@ func TestGjsonExtendElasticDateTimeNullableFalse(t *testing.T) {
 }
 
 func TestGjsonExtendElasticDateTimeNullableTrue(t *testing.T) {
-	parser := NewParser("gjson_extend", nil, "")
+	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
 	metric := parser.Parse(jsonSample)
 
 	result := metric.GetElasticDateTime("date_not_exist", true)

@@ -15,10 +15,10 @@ limitations under the License.
 package util
 
 import (
-	"github.com/kshvakov/clickhouse"
 	"strings"
-	"github.com/housepower/clickhouse_sinker/model"
 
+	"github.com/housepower/clickhouse_sinker/model"
+	"github.com/kshvakov/clickhouse"
 )
 
 // There are only three cases for the value type of metric, (float64, string, map [string] interface {})
@@ -39,11 +39,11 @@ func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} 
 	case "floatArray":
 		return clickhouse.Array(metric.GetArray(name, "float"))
 	case "Date":
-		return metric.GetDate(name)
+		return metric.GetDate(name, nullable)
 	case "DateTime":
-		return metric.GetDateTime(name)
+		return metric.GetDateTime(name, nullable)
 	case "DateTime64":
-		return metric.GetDateTime64(name)
+		return metric.GetDateTime64(name, nullable)
 	case "ElasticDateTime":
 		return metric.GetElasticDateTime(name, nullable)
 

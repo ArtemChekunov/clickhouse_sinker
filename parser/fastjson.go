@@ -30,8 +30,9 @@ type FastjsonParser struct {
 	fjp      fastjson.Parser
 }
 
-func (p *FastjsonParser) Parse(bs []byte) (metric model.Metric, err error) {
+func (p *FastjsonParser) Parse(bs []byte) (metric model.Metric) {
 	var value *fastjson.Value
+	var err error
 	if value, err = p.fjp.ParseBytes(bs); err != nil {
 		err = errors.Wrapf(err, "")
 		return

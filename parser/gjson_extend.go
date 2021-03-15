@@ -48,7 +48,7 @@ type GjsonExtendMetric struct {
 // 	"bb_cc" : 3,
 // 	"bb_dd" : ["33", "44"]
 // }
-func (p *GjsonExtendParser) Parse(bs []byte) (metric model.Metric, err error) {
+func (p *GjsonExtendParser) Parse(bs []byte) (metric model.Metric) {
 	var mp = make(map[string]interface{})
 
 	jsonResults := gjson.ParseBytes(bs)
@@ -175,13 +175,13 @@ func (c *GjsonExtendMetric) GetInt(key string, nullable bool) interface{} {
 	}
 
 	if val == nil {
-		return 0
+		return int64(0)
 	}
 	switch v := val.(type) {
 	case float64:
 		return int64(v)
 	default:
-		return 0
+		return int64(0)
 	}
 }
 

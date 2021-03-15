@@ -32,13 +32,14 @@ type CsvParser struct {
 }
 
 // Parse extract comma separated values from the data
-func (p *CsvParser) Parse(bs []byte) (metric model.Metric, err error) {
+func (p *CsvParser) Parse(bs []byte) (metric model.Metric) {
 	r := csv.NewReader(bytes.NewReader(bs))
 	r.Comma = ','
 	if len(p.delimiter) > 0 {
 		r.Comma = rune(p.delimiter[0])
 	}
 	var value []string
+	var err error
 	if value, err = r.Read(); err != nil {
 		err = errors.Wrap(err, "")
 		return

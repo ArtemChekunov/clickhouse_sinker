@@ -27,7 +27,7 @@ type GjsonParser struct {
 	tsLayout []string
 }
 
-func (p *GjsonParser) Parse(bs []byte) (metric model.Metric, err error) {
+func (p *GjsonParser) Parse(bs []byte) (metric model.Metric) {
 	metric = &GjsonMetric{string(bs), p.tsLayout}
 	return
 }

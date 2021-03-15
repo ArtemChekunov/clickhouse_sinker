@@ -28,6 +28,7 @@ require (
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/pierrec/lz4 v2.4.0+incompatible // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.3.0
 	github.com/prometheus/common v0.8.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect

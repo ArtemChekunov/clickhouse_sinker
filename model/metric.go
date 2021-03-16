@@ -22,9 +22,6 @@ type Metric interface {
 	GetArray(key string, t string) interface{}
 	GetFloat(key string, nullable bool) interface{}
 	GetInt(key string, nullable bool) interface{}
-	GetDate(key string, nullable bool) interface{}
-	GetDateTime(key string, nullable bool) interface{}
-	GetDateTime64(key string, nullable bool) interface{}
 	GetElasticDateTime(key string, nullable bool) interface{}
 }
 

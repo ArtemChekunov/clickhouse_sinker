@@ -16,7 +16,6 @@ limitations under the License.
 package parser
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -183,51 +182,6 @@ func (c *GjsonExtendMetric) GetInt(key string, nullable bool) interface{} {
 	default:
 		return int64(0)
 	}
-}
-
-func (c *GjsonExtendMetric) GetDate(key string, nullable bool) interface{} {
-	probe := c.mp[key]
-
-	if nullable && probe == nil {
-		return nil
-	}
-
-	val := fmt.Sprintf("%v", c.GetString(key, false))
-
-	t, _ := time.Parse(c.tsLayout[0], val)
-	return t
-}
-
-func (c *GjsonExtendMetric) GetDateTime(key string, nullable bool) interface{} {
-	probe := c.mp[key]
-
-	if nullable && probe == nil {
-		return nil
-	}
-
-	if v := c.GetFloat(key, false).(float64); v != 0 {
-		return time.Unix(int64(v), int64(v*1e9)%1e9)
-	}
-
-	val := c.GetString(key, false).(string)
-	t, _ := time.Parse(c.tsLayout[1], val)
-	return t
-}
-
-func (c *GjsonExtendMetric) GetDateTime64(key string, nullable bool) interface{} {
-	probe := c.mp[key]
-
-	if nullable && probe == nil {
-		return nil
-	}
-
-	if v := c.GetFloat(key, false).(float64); v != 0 {
-		return time.Unix(int64(v), int64(v*1e9)%1e9)
-	}
-
-	val := c.GetString(key, false).(string)
-	t, _ := time.Parse(c.tsLayout[2], val)
-	return t
 }
 
 func (c *GjsonExtendMetric) GetElasticDateTime(key string, nullable bool) interface{} {

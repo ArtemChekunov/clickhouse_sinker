@@ -85,6 +85,7 @@ func (c *ClickHouse) Write(metrics []model.Metric) (err error) {
 	}
 
 	stmt, err := tx.Prepare(c.prepareSQL)
+	//log.Info()
 	if err != nil {
 		log.Error("prepareSQL:", err.Error())
 
@@ -100,8 +101,16 @@ func (c *ClickHouse) Write(metrics []model.Metric) (err error) {
 		var args = make([]interface{}, len(c.dmMap))
 		for i, name := range c.dms {
 			args[i] = util.GetValueByType(metric, c.dmMap[name])
+			log.Info(metric, c.dmMap[name])
+			log.Info(util.GetValueByType(metric, c.dmMap[name]))
 		}
+		log.Info("args")
+		log.Info(args)
+		log.Info("c.dms")
+		log.Info(c.dms)
+
 		if _, err := stmt.Exec(args...); err != nil {
+			log.Info(stmt)
 			prom.ClickhouseEventsErrors.WithLabelValues(c.Db, c.TableName).Inc()
 			log.Error("execSQL:", err.Error())
 			return err

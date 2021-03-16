@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"log"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
@@ -115,7 +114,7 @@ func BenchmarkUnmarshalGabon2(b *testing.B) {
 func TestGjsonExtend(t *testing.T) {
 	// mp := map[string]interface{}{}
 	// var p fastjson.Parser
-	parser := NewParser("gjson_extend", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
+	parser := NewParser("gjson_extend", nil, "")
 	metric := parser.Parse(jsonSample)
 
 	arr := metric.GetArray("mp.a", "int").([]int64)
@@ -131,16 +130,8 @@ func TestGjsonExtend(t *testing.T) {
 }
 
 func TestFastJson(t *testing.T) {
-	parser := NewParser("fastjson", nil, "", []string{DefaultTSLayout[0], "2006-01-02 15:04:05", time.RFC3339})
+	parser := NewParser("fastjson", nil, "")
 	metric := parser.Parse(jsonSample2)
-
-	ts1 := metric.GetDateTime("time", false)
-	exp1, _ := time.Parse("2006-01-02 15:04:05", "2006-01-02 15:04:05")
-	assert.Equal(t, exp1, ts1)
-
-	ts2 := metric.GetDateTime64("timestamp", false)
-	exp2, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05.123+08:00")
-	assert.Equal(t, exp2, ts2)
 
 	arr := metric.GetArray("str_array", "string").([]string)
 	exp3 := []string{"tag3", "tag5"}

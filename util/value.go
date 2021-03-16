@@ -38,12 +38,6 @@ func GetValueByType(metric model.Metric, cwt *model.ColumnWithType) interface{} 
 		return clickhouse.Array(metric.GetArray(name, "int"))
 	case "floatArray":
 		return clickhouse.Array(metric.GetArray(name, "float"))
-	case "Date":
-		return metric.GetDate(name, nullable)
-	case "DateTime":
-		return metric.GetDateTime(name, nullable)
-	case "DateTime64":
-		return metric.GetDateTime64(name, nullable)
 	case "ElasticDateTime":
 		return metric.GetElasticDateTime(name, nullable)
 

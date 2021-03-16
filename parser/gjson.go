@@ -18,23 +18,21 @@ package parser
 import (
 	"time"
 
-	"github.com/tidwall/gjson"
-
 	"github.com/housepower/clickhouse_sinker/model"
+	"github.com/sundy-li/go_commons/log"
+	"github.com/tidwall/gjson"
 )
 
 type GjsonParser struct {
-	tsLayout []string
 }
 
 func (p *GjsonParser) Parse(bs []byte) (metric model.Metric) {
-	metric = &GjsonMetric{string(bs), p.tsLayout}
+	metric = &GjsonMetric{string(bs)}
 	return
 }
 
 type GjsonMetric struct {
-	raw      string
-	tsLayout []string
+	raw string
 }
 
 func (c *GjsonMetric) Get(key string) interface{} {
@@ -96,49 +94,10 @@ func (c *GjsonMetric) GetInt(key string, nullable bool) interface{} {
 	return r.Int()
 }
 
-func (c *GjsonMetric) GetDate(key string, nullable bool) interface{} {
-	r := gjson.Get(c.raw, key)
-	if nullable && !r.Exists() {
-		return nil
-	}
-
-	val := r.String()
-	t, _ := time.Parse(c.tsLayout[0], val)
-	return t
-}
-
-func (c *GjsonMetric) GetDateTime(key string, nullable bool) interface{} {
-	r := gjson.Get(c.raw, key)
-	if nullable && !r.Exists() {
-		return nil
-	}
-
-	if v := r.Float(); v != 0 {
-		return time.Unix(int64(v), int64(v*1e9)%1e9)
-	}
-
-	val := r.String()
-	t, _ := time.Parse(c.tsLayout[1], val)
-	return t
-}
-
-func (c *GjsonMetric) GetDateTime64(key string, nullable bool) interface{} {
-	r := gjson.Get(c.raw, key)
-	if nullable && !r.Exists() {
-		return nil
-	}
-
-	if v := r.Float(); v != 0 {
-		return time.Unix(int64(v), int64(v*1e9)%1e9)
-	}
-
-	val := r.String()
-	t, _ := time.Parse(c.tsLayout[2], val)
-	return t
-}
-
 func (c *GjsonMetric) GetElasticDateTime(key string, nullable bool) interface{} {
 	r := gjson.Get(c.raw, key)
+	log.Info("GetElasticDateTime")
+	log.Info(r.Raw)
 	if nullable && !r.Exists() {
 		return nil
 	}
